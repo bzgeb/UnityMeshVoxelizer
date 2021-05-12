@@ -1,7 +1,6 @@
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using UnityEngine.Jobs;
 
 public class VoxelizeSelection : MonoBehaviour
 {
@@ -14,11 +13,19 @@ public class VoxelizeSelection : MonoBehaviour
             meshCollider = meshFilterGameObject.AddComponent<MeshCollider>();
         }
 
+        if (!meshFilterGameObject.TryGetComponent(out VoxelizedMesh voxelizedMesh))
+        {
+            voxelizedMesh = meshFilterGameObject.AddComponent<VoxelizedMesh>();
+        }
+
         var bounds = meshCollider.bounds;
         var minExtents = bounds.center - bounds.extents;
         var maxExtents = bounds.center + bounds.extents;
-        float radius = 0.05f;
+        float radius = voxelizedMesh.Radius;
+        float size = radius * 2f;
         var count = (bounds.extents * 2f) / radius;
+
+        voxelizedMesh.Positions.Clear();
 
         for (int i = 0; i < count.x; ++i)
         {
@@ -26,11 +33,10 @@ public class VoxelizeSelection : MonoBehaviour
             {
                 for (int w = 0; w < count.y; ++w)
                 {
-                    var pos = minExtents + new Vector3(i * radius, w * radius, j * radius);
-                    if (Physics.CheckSphere(pos, radius))
+                    var pos = minExtents + new Vector3(i * size, w * size, j * size);
+                    if (Physics.CheckBox(pos, new Vector3(radius, radius, radius)))
                     {
-                        GameObject go = new GameObject("New");
-                        go.transform.position = pos;
+                        voxelizedMesh.Positions.Add(pos);
                     }
                 }
             }
