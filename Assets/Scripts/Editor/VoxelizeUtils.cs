@@ -2,7 +2,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-public static class VoxelizeSelection
+public static class VoxelizeUtils
 {
     [MenuItem("Tools/Voxelize Selection")]
     public static void VoxelizeSelectedObject(MenuCommand command)
