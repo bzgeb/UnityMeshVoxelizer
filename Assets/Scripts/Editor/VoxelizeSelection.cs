@@ -2,28 +2,32 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
-public class VoxelizeSelection : MonoBehaviour
+public static class VoxelizeSelection
 {
     [MenuItem("Tools/Voxelize Selection")]
-    public static void VoxelizeMesh(MenuCommand command)
+    public static void VoxelizeSelectedObject(MenuCommand command)
     {
         var meshFilterGameObject = Selection.gameObjects.First(o => o.TryGetComponent(out MeshFilter meshFilter));
-        if (!meshFilterGameObject.TryGetComponent(out MeshCollider meshCollider))
+        VoxelizeMesh(meshFilterGameObject.GetComponent<MeshFilter>());
+    }
+
+    public static void VoxelizeMesh(MeshFilter meshFilter)
+    {
+        if (!meshFilter.TryGetComponent(out MeshCollider meshCollider))
         {
-            meshCollider = meshFilterGameObject.AddComponent<MeshCollider>();
+            meshCollider = meshFilter.gameObject.AddComponent<MeshCollider>();
         }
 
-        if (!meshFilterGameObject.TryGetComponent(out VoxelizedMesh voxelizedMesh))
+        if (!meshFilter.TryGetComponent(out VoxelizedMesh voxelizedMesh))
         {
-            voxelizedMesh = meshFilterGameObject.AddComponent<VoxelizedMesh>();
+            voxelizedMesh = meshFilter.gameObject.AddComponent<VoxelizedMesh>();
         }
 
         var bounds = meshCollider.bounds;
         var minExtents = bounds.center - bounds.extents;
-        var maxExtents = bounds.center + bounds.extents;
         float radius = voxelizedMesh.Radius;
         float size = radius * 2f;
-        var count = (bounds.extents * 2f) / radius;
+        var count = (bounds.extents) / radius;
 
         voxelizedMesh.Positions.Clear();
 
@@ -33,10 +37,10 @@ public class VoxelizeSelection : MonoBehaviour
             {
                 for (int w = 0; w < count.y; ++w)
                 {
-                    var pos = minExtents + new Vector3(i * size, w * size, j * size);
+                    var pos = minExtents + new Vector3(radius + i * size, radius + w * size, radius + j * size);
                     if (Physics.CheckBox(pos, new Vector3(radius, radius, radius)))
                     {
-                        voxelizedMesh.Positions.Add(pos);
+                        voxelizedMesh.Positions.Add(voxelizedMesh.transform.InverseTransformPoint(pos));
                     }
                 }
             }

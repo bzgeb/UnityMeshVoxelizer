@@ -14,9 +14,16 @@ public class VoxelizedMesh : MonoBehaviour
         float size = Radius * 2f;
         foreach (var position in Positions)
         {
-            Handles.DrawWireCube(position, new Vector3(size, size, size));
+            var localPos = transform.TransformPoint(position);
+            Handles.DrawWireCube(localPos, new Vector3(size, size, size));
             //Gizmos.DrawCube(position, new Vector3(size, size, size));
             //Gizmos.DrawWireSphere(position, Radius);
+        }
+
+        if (TryGetComponent(out MeshCollider meshCollider))
+        {
+            var bounds = meshCollider.bounds;
+            Handles.DrawWireCube(bounds.center, bounds.extents * 2);
         }
     }
 }
