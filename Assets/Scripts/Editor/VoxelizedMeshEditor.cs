@@ -23,13 +23,11 @@ public class VoxelizedMeshEditor : Editor
 
         Handles.color = Color.green;
         float size = voxelizedMesh.HalfSize * 2f;
-        //foreach (Vector3 position in voxelizedMesh.Positions)
-        foreach (int ind in voxelizedMesh.i)
+
+        foreach (Vector3Int gridPoint in voxelizedMesh.GridPoints)
         {
-            Vector3 worldPos = toPos(ind, voxelizedMesh.xMax, voxelizedMesh.yMax, voxelizedMesh.HalfSize,
-                voxelizedMesh.minExtents);
-            Vector3 localPos = voxelizedMesh.transform.TransformPoint(worldPos);
-            Handles.DrawWireCube(localPos, new Vector3(size, size, size));
+            Vector3 worldPos = voxelizedMesh.PointToPosition(gridPoint);
+            Handles.DrawWireCube(worldPos, new Vector3(size, size, size));
         }
 
         if (voxelizedMesh.TryGetComponent(out MeshCollider meshCollider))
@@ -37,17 +35,5 @@ public class VoxelizedMeshEditor : Editor
             Bounds bounds = meshCollider.bounds;
             Handles.DrawWireCube(bounds.center, bounds.extents * 2);
         }
-    }
-    
-    public Vector3 toPos(int idx, int xMax, int yMax, float halfSize, Vector3 minExtents)
-    {
-        float size = halfSize * 2;
-        int z = idx / (xMax * yMax);
-        idx -= (z * xMax * yMax);
-        int y = idx / xMax;
-        int x = idx % xMax;
-        
-        Vector3 pos = minExtents + new Vector3(halfSize + x * size, halfSize + y * size, halfSize + z * size);
-        return pos;
     }
 }

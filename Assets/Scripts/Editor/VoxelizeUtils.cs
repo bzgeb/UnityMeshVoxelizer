@@ -7,7 +7,8 @@ public static class VoxelizeUtils
     [MenuItem("Tools/Voxelize Selection")]
     public static void VoxelizeSelectedObject(MenuCommand command)
     {
-        GameObject meshFilterGameObject = Selection.gameObjects.First(o => o.TryGetComponent(out MeshFilter meshFilter));
+        GameObject meshFilterGameObject =
+            Selection.gameObjects.First(o => o.TryGetComponent(out MeshFilter meshFilter));
         VoxelizeMesh(meshFilterGameObject.GetComponent<MeshFilter>());
     }
 
@@ -26,20 +27,14 @@ public static class VoxelizeUtils
         Bounds bounds = meshCollider.bounds;
         Vector3 minExtents = bounds.center - bounds.extents;
         float halfSize = voxelizedMesh.HalfSize;
-        float size = halfSize * 2f;
         Vector3 count = bounds.extents / halfSize;
 
-        //voxelizedMesh.Positions.Clear();
-        voxelizedMesh.i.Clear();
+        int xMax = Mathf.CeilToInt(count.x);
+        int yMax = Mathf.CeilToInt(count.y);
+        int zMax = Mathf.CeilToInt(count.z);
 
-        int xMax = (int)count.x;
-        int yMax = (int)count.y;
-        int zMax = (int)count.z;
-        
-        voxelizedMesh.xMax = xMax;
-        voxelizedMesh.yMax = yMax;
-        voxelizedMesh.zMax = zMax;
-        voxelizedMesh.minExtents = minExtents;
+        voxelizedMesh.GridPoints.Clear();
+        voxelizedMesh.LocalOrigin = voxelizedMesh.transform.InverseTransformPoint(minExtents);
 
         for (int x = 0; x < xMax; ++x)
         {
@@ -47,20 +42,13 @@ public static class VoxelizeUtils
             {
                 for (int y = 0; y < yMax; ++y)
                 {
-                    Vector3 pos = minExtents + new Vector3(halfSize + x * size, halfSize + y * size, halfSize + z * size);
+                    Vector3 pos = voxelizedMesh.PointToPosition(new Vector3Int(x, y, z));
                     if (Physics.CheckBox(pos, new Vector3(halfSize, halfSize, halfSize)))
                     {
-                        int index = getIndex(x, y, z, xMax, yMax);
-                        voxelizedMesh.i.Add(index);
-                        //voxelizedMesh.Positions.Add(voxelizedMesh.transform.InverseTransformPoint(pos));
+                        voxelizedMesh.GridPoints.Add(new Vector3Int(x, y, z));
                     }
                 }
             }
         }
-    }
-
-    static int getIndex(int x, int y, int z, int xMax, int yMax)
-    {
-        return (z * xMax * yMax) + (y * xMax) + x; 
     }
 }
