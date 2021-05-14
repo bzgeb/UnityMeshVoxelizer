@@ -29,18 +29,18 @@ public static class VoxelizeUtils
         float halfSize = voxelizedMesh.HalfSize;
         Vector3 count = bounds.extents / halfSize;
 
-        int xMax = Mathf.CeilToInt(count.x);
-        int yMax = Mathf.CeilToInt(count.y);
-        int zMax = Mathf.CeilToInt(count.z);
+        int xGridSize = Mathf.CeilToInt(count.x);
+        int yGridSize = Mathf.CeilToInt(count.y);
+        int zGridSize = Mathf.CeilToInt(count.z);
 
         voxelizedMesh.GridPoints.Clear();
         voxelizedMesh.LocalOrigin = voxelizedMesh.transform.InverseTransformPoint(minExtents);
 
-        for (int x = 0; x < xMax; ++x)
+        for (int x = 0; x < xGridSize; ++x)
         {
-            for (int z = 0; z < zMax; ++z)
+            for (int z = 0; z < zGridSize; ++z)
             {
-                for (int y = 0; y < yMax; ++y)
+                for (int y = 0; y < yGridSize; ++y)
                 {
                     Vector3 pos = voxelizedMesh.PointToPosition(new Vector3Int(x, y, z));
                     if (Physics.CheckBox(pos, new Vector3(halfSize, halfSize, halfSize)))

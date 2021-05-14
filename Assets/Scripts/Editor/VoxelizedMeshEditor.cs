@@ -30,6 +30,7 @@ public class VoxelizedMeshEditor : Editor
             Handles.DrawWireCube(worldPos, new Vector3(size, size, size));
         }
 
+        Handles.color = Color.red;
         if (voxelizedMesh.TryGetComponent(out MeshCollider meshCollider))
         {
             Bounds bounds = meshCollider.bounds;
